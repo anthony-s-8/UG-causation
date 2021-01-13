@@ -10,58 +10,51 @@ library(lmerTest)
 library(ggeffects)
 
 cat('\nSetting up priors...')
-
-sA <- 5
-sB <- 20
-
 ## prior definitions for AI players
+N <- 10
 priors.ai <- data.frame(player=c('A', 'B', 'C'),
-                        offer.s1=c(sA, sB, sB),
-                        offer.s2=c(sB, sB, sA),
-                        accept.s1=c(sB, sB, sA),
-                        accept.s2=c(sA, sB, sB))
+                        rate=c(0.8, 0.5, 0.2)) %>%
+    mutate(offer.s1=rate*N,
+           offer.s2=(1-rate)*N,
+           accept.s1=(1-rate)*N,
+           accept.s2=rate*N)
 
 ## Display densities of AI priors for proposing/accepting offers
-png('ai-proposal-prior.png')
 priors.ai %>% crossing(offer=seq(from=0, to=1, by=0.01)) %>%
     mutate(poffer=dbeta(offer, offer.s1, offer.s2)) %>%
     ggplot(aes(x=offer, y=poffer, color=player)) +
     geom_line() + theme_classic() + ylab('P(offer=X | player)') +
     ggtitle('When AI proposes, P(offer=X | player)')
-dev.off()
-png('ai-acceptance-prior.png')
+ggsave('ai-proposal-prior.png')
+
 priors.ai %>% crossing(offer=seq(from=0, to=1, by=0.01)) %>%
     mutate(paccept=pbeta(offer, accept.s1, accept.s2)) %>%
     ggplot(aes(x=offer, y=paccept, color=player)) +
     geom_line() + theme_classic() +
     ylab('P(Accept | offer=X, player)') +
     ggtitle('When AI accepts, P(Accept | offer=X, player)')
-dev.off()
+ggsave('ai-acceptance-prior.png')
 
-
-png('cause-accept.png')
 priors.ai %>% crossing(offer=seq(from=0, to=1, by=0.01)) %>%
     mutate(cause=(1 - dbeta(offer, offer.s1, offer.s2) / 10)) %>%
     ggplot(aes(x=offer, y=cause, color=player)) + ylim(0, 1) +
     geom_line() + theme_classic() + ylab('Approx. Causal Judgment')
-dev.off()
+ggsave('cause-accept.png')
 
-png('cause-propose-accept.png')
 priors.ai %>% crossing(offer=seq(from=0, to=1, by=0.01)) %>%
     mutate(cause=(1 - pbeta(offer, accept.s1, accept.s2)/2)) %>%
     ggplot(aes(x=offer, y=cause, color=player)) +
     geom_line() + theme_classic() + ylim(0, 1) +
     ylab('Approx. Causal Judgment | AI rejected offer')
-dev.off()
+ggsave('cause-propose-accept.png')
 
-png('cause-propose-reject.png')
 priors.ai %>% crossing(offer=seq(from=0, to=1, by=0.01)) %>%
     mutate(cause=(1 + pbeta(offer, accept.s1, accept.s2))/2) %>%
     ggplot(aes(x=offer, y=cause, color=player)) +
     geom_line() + theme_classic() + ylim(0, 1) +
     ylab('Approx. Causal Judgment | AI accepted offer')
-dev.off()
-quit()
+ggsave('cause-propose-reject.png')
+
 
 ## Define subject-level priors for acceptance
 ##

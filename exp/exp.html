@@ -40,7 +40,7 @@ var TRIALS = 0; // this will be computed dynamically
 var LEFT_KEY = "ArrowLeft";
 var RIGHT_KEY = "ArrowRight";
 var LR_BUTTONS = ['<button class="jspsych-btn" id="left">%choice%</button>',
-	                '<button class="jspsych-btn" id="right">%choice%</button>'];
+	          '<button class="jspsych-btn" id="right">%choice%</button>'];
 var ALLOW_KEYPRESS = function (trial) {
   setTimeout(function () {
     document.onkeydown = function (e) {
@@ -79,16 +79,30 @@ var players = [{player: colors[img_ind[0]], avatar: images[img_ind[0]], trait: '
                  return x;
                });
 
-
+  
 if (condition == 'propose') {
   // swap alpha and beta
   players = players.map(function (p) {
     let a = p.alpha;
     p.alpha = p.beta;
     p.beta = a;
-    return p;
-  });
+      return p;
+  }
 }
+
+
+/* Get IBRC survey code */
+var urlParams = new URLSearchParams(window.location.search);
+var surveyCode = urlParams.get('survey_code');
+  
+console.log('ID: ' + id);
+console.log('Condition: ' + condition);
+console.log('survey_code: ' + surveyCode);
+jsPsych.data.addProperties({
+  id: id,
+  condition: condition,
+  surveycode: surveyCode
+});
 
 var trialParams = players.map(function (p) {
   return Array(learnTrials).fill().map(function () {
@@ -328,6 +342,11 @@ jsPsych.init({
                  function(data) {
     	             document.getElementById('done').style.visibility = "visible";
                  }).promise();
-  }
+      
+    if (surveyCode != null)
+      window.location.replace("https://duke-br.sona-systems.com/webstudy_credit.aspx?experiment_id=339&credit_token=3c0ed20b6a62422581d9d9daca4e158c&survey_code="+surveyCode);
+  },
+  preload_images: images,
+  show_progress_bar: true
 });
 </script>
