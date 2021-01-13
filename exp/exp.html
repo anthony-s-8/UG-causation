@@ -21,16 +21,16 @@
 <script>
 /* Data parameters */
 var DATA_DIR = "data";
-var EXP_NAME = "pilot";
+var EXP_NAME = "pilot2";
 
 /* Task Parameters */
 var TEST = false;  // set to true to skip instructions/consent
 var stakes = 10.00;
 var stakes_txt = "ten dollars";
-var learnTrials = 25; // number of learning trials per Player
-var mcmcTrials = 50; // number of trials per chain per Player (i.e., number of MCMC iterations)
-var mcmcChains = 3; // number of MCMC chains
-var testTrials = 11; // number of test trials per Player
+var learnTrials = TEST ? 1 : 25; // number of learning trials per Player
+var mcmcTrials = TEST ? 2 : 50; // number of trials per chain per Player (i.e., number of MCMC iterations)
+var mcmcChains = TEST ? 1 : 3; // number of MCMC chains
+var testTrials = TEST ? 3 : 11; // number of test trials per Player
 var stim_size = 150; // height/width of the avatars in px
 var TRIAL_DURATION = null;
 var POST_TRIAL_GAP = 250;

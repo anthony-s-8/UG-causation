@@ -27,7 +27,7 @@ if (!TEST) {
 
 /* Display check questions and loop until correct */
 var check_choices = ["Your partner gets the amount of money specified in the offer, but you get nothing.",
-            		     "Neither player recieves any money",
+            		     "Neither player receives any money",
             		     "Your partner gets the amount of money specified in the offer, and you get the rest.",
             		     "You get the amount of money specified in the offer, and your partner gets the rest."];
 if (!TEST) {

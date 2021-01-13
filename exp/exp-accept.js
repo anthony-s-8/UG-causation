@@ -15,7 +15,7 @@ var instructions_accept = {
     "<p>Since you will be playing this game many times, you will <b>not</b> receive money from every round of the game.</p>" +
     "<p><b>But, you will receive the amount of money that you earn from a randomly selected round of the game as a bonus through mTurk. </b>" +
     "For example, if you accepted an offer of $5.00 on the randomly chosen round, you will receive a bonus of $5.00 after the HIT is completed. " +
-    "But, if you rejected your partner's offer of $5.00, you will recieve no bonus at all.</p>" +
+    "But, if you rejected your partner's offer of $5.00, you will receive no bonus at all.</p>" +
     "<p><b>So, make sure to play each round like real money is up for grabs- you never know which round of the game you will get a bonus from!</b></p>",
     "<p>In addition to clicking on the buttons, you may use the left and right arrow keys to make quicker responses.</p>",
     "<img src='img/red_player.png' height='" + stim_size + "'>" +
@@ -34,7 +34,7 @@ if (!TEST) {
 
 /* Display check questions and loop until correct */
 var check_choices = ["You get the amount of money specified in the offer, but your partner gets nothing.",
-                     "Neither player recieves any money",
+                     "Neither player receives any money",
                      "Your partner gets the amount of money specified in the offer, and you get the rest.",
                      "You get the amount of money specified in the offer, and your partner gets the rest."];
 if (!TEST) {
@@ -54,7 +54,7 @@ var accept_cause = {
       "As a result, you have earned $" + d.earned + ".</p><br>" +
       "<p><b>To what extent did you earn $" + d.earned +
       " in this round because " + d.player +
-      " made an offer of $" + d.offer + "?</b></p><br>"
+      " made an offer of $" + d.offer + "?</b></p>"
   },
   labels: ["not at all", "totally"],
   trial_duration: TRIAL_DURATION,
@@ -82,13 +82,13 @@ var accept_confidence = {
       "As a result, you have earned $" + d.earned + ".</p><br>" +
       "<p><b>To what extent did you earn $" + d.earned +
       " in this round because " + d.player +
-      " made an offer of $" + d.offer + "?</b></p><br>" +
+      " made an offer of $" + d.offer + "?</b></p>" +
       '<div class="jspsych-image-slider-response-container" style="position:relative; margin: 0 auto 3em auto;">' +
       "<input type='range' disabled='true' style='width: 100%' value='" + d2.response + "'>" +
       '<div><div style="display: inline-block; position: absolute; left:-50%; text-align: center; width: 100%;">' +
       '<span style="text-align: center; font-size: 80%;">not at all</span></div>' +
       '<div style="display: inline-block; position: absolute; left:50%; text-align: center; width: 100%;">' +
-      '<span style="text-align: center; font-size: 80%;">totally</span></div></div></div><br><br>' +
+      '<span style="text-align: center; font-size: 80%;">totally</span></div></div></div><br>' +
       "<p><b>How confident are you in your response to the previous question?</b></p>"
   },
   labels: ["not at all", "totally"],
