@@ -21,10 +21,10 @@
 <script>
 /* Data parameters */
 var DATA_DIR = "data";
-var EXP_NAME = "pilot2";
+var EXP_NAME = "IBRC";
 
 /* Task Parameters */
-var TEST = false;  // set to true to skip instructions/consent
+var TEST = true;  // set to true to skip instructions/consent
 var stakes = 10.00;
 var stakes_txt = "ten dollars";
 var learnTrials = TEST ? 1 : 25; // number of learning trials per Player
@@ -59,10 +59,18 @@ var condition = "accept";
 //if (Math.random() > 0.5) {
 //condition = "propose";
 //}
-console.log('ID: ' + id); console.log('Condition: ' + condition);
+
+/* Get IBRC survey code */
+var urlParams = new URLSearchParams(window.location.search);
+var surveyCode = urlParams.get('survey_code');
+
+console.log('ID: ' + id);
+console.log('Condition: ' + condition);
+console.log('survey_code: ' + surveyCode);
 jsPsych.data.addProperties({
   id: id,
-  condition: condition
+  condition: condition,
+  surveycode: surveyCode
 });
 
 
@@ -79,7 +87,6 @@ var players = [{player: colors[img_ind[0]], avatar: images[img_ind[0]], trait: '
                  return x;
                });
 
-  
 if (condition == 'propose') {
   // swap alpha and beta
   players = players.map(function (p) {
@@ -87,22 +94,9 @@ if (condition == 'propose') {
     p.alpha = p.beta;
     p.beta = a;
       return p;
-  }
+  });
 }
 
-
-/* Get IBRC survey code */
-var urlParams = new URLSearchParams(window.location.search);
-var surveyCode = urlParams.get('survey_code');
-  
-console.log('ID: ' + id);
-console.log('Condition: ' + condition);
-console.log('survey_code: ' + surveyCode);
-jsPsych.data.addProperties({
-  id: id,
-  condition: condition,
-  surveycode: surveyCode
-});
 
 var trialParams = players.map(function (p) {
   return Array(learnTrials).fill().map(function () {
@@ -305,8 +299,8 @@ var attn_check = check_q('attnCheck',
   "No, I did not take the study seriously",
   "No, something else affected my participation negatively.",
   "Yes."], 4, false);
-timeline.push(id_q, age_q, sex_q, attn_check, debrief_q, comments_q);
-TRIALS = TRIALS + 6;
+timeline.push(age_q, sex_q, attn_check, debrief_q, comments_q);
+TRIALS = TRIALS + 5;
 
 
 /* start the experiment */
@@ -341,10 +335,13 @@ jsPsych.init({
                  dataToServer,
                  function(data) {
     	             document.getElementById('done').style.visibility = "visible";
+
+									 // Re-direct back to SONA if survey_code is present
+									 if (surveyCode != null)
+									   setTimeout(function() {
+							         window.location.replace("https://duke-br.sona-systems.com/webstudy_credit.aspx?experiment_id=341&credit_token=6a47a63cca3f4e2da59aa314bd198526&survey_code="+surveyCode);
+										 }, 3000);
                  }).promise();
-      
-    if (surveyCode != null)
-      window.location.replace("https://duke-br.sona-systems.com/webstudy_credit.aspx?experiment_id=339&credit_token=3c0ed20b6a62422581d9d9daca4e158c&survey_code="+surveyCode);
   },
   preload_images: images,
   show_progress_bar: true
