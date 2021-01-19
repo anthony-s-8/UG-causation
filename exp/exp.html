@@ -24,17 +24,20 @@ var DATA_DIR = "data";
 var EXP_NAME = "IBRC";
 
 /* Task Parameters */
-var TEST = true;  // set to true to skip instructions/consent
+var TEST = false;                 // set to true to skip instructions/consent
 var stakes = 10.00;
 var stakes_txt = "ten dollars";
 var learnTrials = TEST ? 1 : 25; // number of learning trials per Player
-var mcmcTrials = TEST ? 2 : 50; // number of trials per chain per Player (i.e., number of MCMC iterations)
-var mcmcChains = TEST ? 1 : 3; // number of MCMC chains
-var testTrials = TEST ? 3 : 11; // number of test trials per Player
-var stim_size = 150; // height/width of the avatars in px
+var mcmcTrials = TEST ? 2 : 50;  // number of trials per chain per Player (i.e., number of MCMC iterations)
+var mcmcChains = TEST ? 1 : 3;   // number of MCMC chains
+var learnBlocks = TEST ? 1 : 5;  // number of interleaved learning/MCMC blocks
+var learnBlockTrials = Math.ceil(learnTrials / learnBlocks);
+var mcmcBlockTrials = Math.ceil(mcmcTrials / learnBlocks);
+var testTrials = TEST ? 3 : 11;  // number of test trials per Player
+var stim_size = 150;             // height/width of the avatars in px
 var TRIAL_DURATION = null;
 var POST_TRIAL_GAP = 250;
-var TRIALS = 0; // this will be computed dynamically
+var TRIALS = 0;                  // this will be computed dynamically
 
 /* Variables for allowing keypresses of buttons */
 var LEFT_KEY = "ArrowLeft";
@@ -98,44 +101,15 @@ if (condition == 'propose') {
 }
 
 
-var trialParams = players.map(function (p) {
-  return Array(learnTrials).fill().map(function () {
-    let o = { ...p };
-    o.offer = (jStat.beta.sample(p.alpha, p.beta) * stakes).toFixed(2);
-    return o;
-  });
-}).flat();
-
-/* Define MCMC and test params for each trial */
-if (condition == 'accept') {
-  var mcmcParams = players.map(function (player) {
-    arr = Array(mcmcChains);
-    for (c = 0; c < mcmcChains; c++) {
-      arr[c] = { ...player }; // copy the player Object to avoid mutation
-      arr[c].choices = ["$" + (jStat.beta.sample(player.alpha, player.beta) * stakes).toFixed(2),
-		                    "$" + (jStat.beta.sample(player.alpha, player.beta) * stakes).toFixed(2)];
-      arr[c].chain = c+1;
-    }
-    return arr;
-  }).flat();
-  var testParams = players.map(function (player) {
-    return [...Array(testTrials).keys()].map(function (i) {
-      let o = { ...player };
-      o.offer = (stakes * (i / (testTrials-1))).toFixed(2);
+// create the jspsych parameters for the learning stage
+function learnParams(n) {
+  return players.map(function (p) {
+    return Array(n).fill().map(function () {
+      let o = { ...p };
+      o.offer = (jStat.beta.sample(p.alpha, p.beta) * stakes).toFixed(2);
       return o;
     });
   }).flat();
-} else {
-  var mcmcParams = players.map(function (player) {
-    return [...Array(mcmcTrials * mcmcChains).keys()].map(function (i) {
-      let o = { ...player };
-      o.offer = (stakes * (i / (mcmcTrials*mcmcChains-1))).toFixed(2);
-      return o;
-    });
-  }).flat();
-
-  // idk what to do in test for propose condition
-  var testParams = [];
 }
 
 /* A convenience function to display the Player avatar */
