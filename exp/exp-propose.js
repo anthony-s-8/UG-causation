@@ -140,7 +140,7 @@ var propose_feedback = {
   }
 };
 
-function propose_trial(n, stage, cause=false) {
+function propose_learn_trial(n, stage, cause=false) {
 	let params = learnParams(n);
 
   let UGtrial = {
@@ -273,7 +273,7 @@ if (!TEST) {
 // test trials
 if (testTrials > 0) {
 	// idk what to do in test for propose condition
-  let trials = propose_trial(testTrials, stage=3, cause=true);
+  let trials = propose_learn_trial(testTrials, stage=3, cause=true);
   propose_timeline.push(trials);
   PROPOSE_TRIALS = PROPOSE_TRIALS + trials.timeline_variables.length * trials.timeline.length;
 }

@@ -166,7 +166,7 @@ function updateProgress() {
   jsPsych.setProgressBar(jsPsych.progress().current_trial_global / TRIALS);
 }
 
-function sampleOffer(mu, sigma=stakes/10, min=0, max=stakes) {
+function sampleOffer(mu, sigma=stakes/20, min=0, max=stakes) {
   if (typeof mu == "string")
     mu = parseFloat(mu.substr(1));
   return Math.min(Math.max(jStat.normal.sample(mu, sigma), min), max);

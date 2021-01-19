@@ -4,7 +4,7 @@ var ACCEPT_TRIALS = 0;
 
 /* instructions trials */
 var instructions_pages_accept = [
-	"<p>Please pay attention and carefully read the following instructions.</p><p>In this HIT, you are going to play a game. " +
+	"<p>Please pay attention and carefully read the following instructions.</p><p>In this study, you are going to play a game. " +
 	"There are two players: you, and a partner. In every round of this game, you and your partner receive " + stakes_txt + " ($" + stakes.toFixed(2) +
 	"), and you must decide how to split it between the two of you.</p><br><p>Here's how it works:</p>",
 	"<p>First, your partner will offer you some portion of the money.</p><p>They can offer you any amount between $0.00 and $" + stakes.toFixed(2) + ".</p>",
@@ -12,8 +12,8 @@ var instructions_pages_accept = [
 	"<p>If you accept the offer, then you will receive the amount of money offered to you, and your partner will get the rest.</p>" +
 	"<p>If you reject the offer, then nobody gets any money in that round.</p><br>",
 	"<p>Since you will be playing this game many times, you will <b>not</b> receive money from every round of the game.</p>" +
-	"<p><b>But, you will receive the amount of money that you earn from a randomly selected round of the game as a bonus through mTurk. </b>" +
-	"For example, if you accepted an offer of $5.00 on the randomly chosen round, you will receive a bonus of $5.00 after the HIT is completed. " +
+	"<p><b>But, you will receive the amount of money that you earn from a randomly selected round of the game as a bonus. </b>" +
+	"For example, if you accepted an offer of $5.00 on the randomly chosen round, you will receive a bonus of $5.00 after the study is completed. " +
 	"But, if you rejected your partner's offer of $5.00, you will receive no bonus at all.</p>" +
 	"<p><b>So, make sure to play each round like real money is up for grabs- you never know which round of the game you will get a bonus from!</b></p>",
 	"<p>In addition to clicking on the buttons, you may use the left and right arrow keys to make quicker responses.</p>",
@@ -54,8 +54,8 @@ var instructions_mcmc_accept = {
 };
 
 if (!TEST) {
-  accept_timeline.push(instructions_accept);
-  ACCEPT_TRIALS = ACCEPT_TRIALS + 1;
+  //accept_timeline.push(instructions_accept);
+  //ACCEPT_TRIALS = ACCEPT_TRIALS + 1;
 }
 
 /* Display check questions and loop until correct */
@@ -64,9 +64,9 @@ var check_choices = ["You get the amount of money specified in the offer, but yo
                      "Your partner gets the amount of money specified in the offer, and you get the rest.",
                      "You get the amount of money specified in the offer, and your partner gets the rest."];
 if (!TEST) {
-  accept_timeline.push(check_q("check1", "Check question: what happens when you accept an offer?", check_choices, 3),
-		                   check_q("check2", "Check question: what happens when you reject an offer?", check_choices, 1));
-  ACCEPT_TRIALS = ACCEPT_TRIALS + 2;
+  //accept_timeline.push(check_q("check1", "Check question: what happens when you accept an offer?", check_choices, 3),
+	//	                   check_q("check2", "Check question: what happens when you reject an offer?", check_choices, 1));
+  //ACCEPT_TRIALS = ACCEPT_TRIALS + 2;
 }
 
 // Ask for a causal judgment after the player accepts/rejects
@@ -74,10 +74,13 @@ var accept_cause = {
   type: 'html-slider-response',
   stimulus: function () {
     d = jsPsych.data.getLastTrialData().values()[0];
-    return avatar() + "<p>You have " + d.response + "ed " +
+		color = d.response == 'accept' ? "green" : "red";
+    return avatar() + "<p>You have <span style='color:" +
+			color + ";font-weight:bold;'>" + d.response + "ed</span> " +
       d.player + "'s offer of $" + d.offer +
-      " out of $" + stakes.toFixed(2) + "." +
-      "As a result, you have earned $" + d.earned + ".</p><br>" +
+      " out of $" + stakes.toFixed(2) + ".<p>" +
+      "As a result, you have earned <span style='color:" + color +";font-weight:bold;'>$" +
+			d.earned + ".</p><br>" +
       "<p><b>To what extent did you earn $" + d.earned +
       " in this round because " + d.player +
       " made an offer of $" + d.offer + "?</b></p>"
@@ -102,10 +105,12 @@ var accept_confidence = {
   stimulus: function () {
     d = jsPsych.data.get().last(2).first(1).values()[0];
     d2 = jsPsych.data.getLastTrialData().values()[0];
-    return avatar() + "<p>You have " + d.response + "ed " +
+    return avatar() + "<p>You have <span style='color:" +
+			color + ";font-weight:bold;'>" + d.response + "ed</span> " +
       d.player + "'s offer of $" + d.offer +
-      " out of $" + stakes.toFixed(2) + "." +
-      "As a result, you have earned $" + d.earned + ".</p><br>" +
+      " out of $" + stakes.toFixed(2) + ".<p>" +
+      "As a result, you have earned <span style='color:" + color +";font-weight:bold;'>$" +
+			d.earned + ".</p><br>" +
       "<p><b>To what extent did you earn $" + d.earned +
       " in this round because " + d.player +
       " made an offer of $" + d.offer + "?</b></p>" +
@@ -140,10 +145,13 @@ var accept_feedback = {
   post_trial_gap: POST_TRIAL_GAP,
   pages: function () {
     d = jsPsych.data.getLastTrialData().values()[0];
-    return [avatar() + "<p>You have " + d.response + "ed " +
+		color = d.response == 'accept' ? "green" : "red";
+    return [avatar() + "<p>You have <span style='color:" +
+						color + ";font-weight:bold;'>" + d.response + "ed</span> " +
             d.player + "'s offer of $" + d.offer +
             " out of $" + stakes.toFixed(2) + ".<p>" +
-            "As a result, you have earned $" + d.earned + ".</p><br>"];
+            "As a result, you have earned <span style='color:" + color +";font-weight:bold;'>$" +
+						d.earned + ".</p><br>"];
   }
 };
 
@@ -283,7 +291,7 @@ if (learnBlocks == 1) {
 } else if (learnBlocks > 1) {
 	for (i=0; i<learnBlocks; i++) {
 		// add learning trials for this block
-		let learn_trials = accept_trial(learnBlockTrials, stage=1, cause=false);
+		let learn_trials = accept_learn_trial(learnBlockTrials, stage=1, cause=false);
 		accept_timeline.push(learn_trials);
 		ACCEPT_TRIALS = ACCEPT_TRIALS + learn_trials.timeline_variables.length * learn_trials.timeline.length;
 
@@ -323,7 +331,7 @@ if (testTrials > 0) {
     });
   }).flat();
 
-  let trials = accept_trial(testParams, stage=3, cause=true);
+  let trials = accept_learn_trial(testParams, stage=3, cause=true);
   accept_timeline.push(trials);
   ACCEPT_TRIALS = ACCEPT_TRIALS + trials.timeline_variables.length * trials.timeline.length;
 }
