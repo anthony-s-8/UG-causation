@@ -13,18 +13,19 @@ cat('\nSetting up priors...')
 ## prior definitions for AI players
 N <- 10
 priors.ai <- data.frame(player=c('A', 'B', 'C'),
-                        rate=c(0.8, 0.5, 0.2)) %>%
+                        rate=c(.25, 0.5, .75)) %>%
     mutate(offer.s1=rate*N,
            offer.s2=(1-rate)*N,
            accept.s1=(1-rate)*N,
            accept.s2=rate*N)
 
 ## Display densities of AI priors for proposing/accepting offers
-priors.ai %>% crossing(offer=seq(from=0, to=1, by=0.01)) %>%
+priors.ai %>% expand_grid(offer=seq(from=0, to=1, by=0.01)) %>%
     mutate(poffer=dbeta(offer, offer.s1, offer.s2)) %>%
     ggplot(aes(x=offer, y=poffer, color=player)) +
     geom_line() + theme_classic() + ylab('P(offer=X | player)') +
     ggtitle('When AI proposes, P(offer=X | player)')
+
 ggsave('ai-proposal-prior.png')
 
 priors.ai %>% crossing(offer=seq(from=0, to=1, by=0.01)) %>%

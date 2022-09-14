@@ -104,8 +104,8 @@ var instructions_mcmc_accept = {
 };
 
 if (!TEST) {
-  //accept_timeline.push(instructions_accept);
-  //ACCEPT_TRIALS = ACCEPT_TRIALS + 1;
+  accept_timeline.push(instructions_accept);
+  ACCEPT_TRIALS = ACCEPT_TRIALS + 1;
 }
 
 /* Display check questions and loop until correct */
@@ -114,9 +114,9 @@ var check_choices = ["You get the amount of money specified in the offer, but yo
                      "Your partner gets the amount of money specified in the offer, and you get the rest.",
                      "You get the amount of money specified in the offer, and your partner gets the rest."];
 if (!TEST) {
-  //accept_timeline.push(check_q("check1", "Check question: what happens when you accept an offer?", check_choices, 3),
-	//	                   check_q("check2", "Check question: what happens when you reject an offer?", check_choices, 1));
-  //ACCEPT_TRIALS = ACCEPT_TRIALS + 2;
+  accept_timeline.push(check_q("check1", "Check question: what happens when you accept an offer?", check_choices, 3),
+		                   check_q("check2", "Check question: what happens when you reject an offer?", check_choices, 1));
+  ACCEPT_TRIALS = ACCEPT_TRIALS + 2;
 }
 
 // jsPsych timeline for an ultimatum game trial
@@ -307,7 +307,6 @@ var UGParams = jsPsych.randomization.shuffle(Array(N_LEARN).fill().map(function 
 for (block=0; block<BLOCKS; block++) {
 	// add learning trials for this block
 	let UGTrials = accept_block(UGParams.slice(block*N_UG_PER_BLOCK, (block+1)*N_UG_PER_BLOCK), block+1);
-	console.log('block: ' + block + ', ' + UGTrials.timeline_variables.length + ' trials.');
 	accept_timeline.push(UGTrials);
 	ACCEPT_TRIALS = ACCEPT_TRIALS + UGTrials.timeline_variables.length * UGTrials.timeline.length;
 
