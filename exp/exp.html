@@ -1,18 +1,17 @@
 <!Doctype html>
 <meta charset="UTF-8">
-
 <html>
     <head>
       <title>UG</title>
       <script src="https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/jstat-1.x/dist/jstat.js"></script>
-      <script src="https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/jspsych-6.1.0-1/jspsych.js"></script>
-      <script src="https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/jspsych-6.1.0-1/plugins/jspsych-external-html.js"></script>
-      <script src="https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/jspsych-6.1.0-1/plugins/jspsych-instructions.js"></script>
-      <script src="https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/jspsych-6.1.0-1/plugins/jspsych-html-button-response.js"></script>
-      <script src="https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/jspsych-6.1.0-1/plugins/jspsych-html-slider-response.js"></script>
-      <script src="https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/jspsych-6.1.0-1/plugins/jspsych-survey-html-form.js"></script>
-      <script src="https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/jspsych-6.1.0-1/plugins/jspsych-survey-text.js"></script>
-      <link href="https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/jspsych-6.1.0-1/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+      <script src="https://unpkg.com/jspsych@7.3.0"></script>
+      <script src="https://unpkg.com/@jspsych/plugin-external-html@1.1.1"></script>
+      <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.1"></script>
+      <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
+      <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.1"></script>
+      <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.1"></script>
+      <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.1"></script>
+      <link href="https://unpkg.com/jspsych@7.3.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     </head>
     <body></body>
@@ -25,25 +24,24 @@ var EXP_NAME = "IBRC";
 
 /* Task Parameters */
 var TEST = false;                 // set to true to skip instructions/consent
-var stakes = 10.00;
-var stakes_txt = "ten dollars";
-var learnTrials = TEST ? 1 : 25; // number of learning trials per Player
-var mcmcTrials = TEST ? 2 : 50;  // number of trials per chain per Player (i.e., number of MCMC iterations)
-var mcmcChains = TEST ? 1 : 3;   // number of MCMC chains
-var learnBlocks = TEST ? 1 : 5;  // number of interleaved learning/MCMC blocks
-var learnBlockTrials = Math.ceil(learnTrials / learnBlocks);
-var mcmcBlockTrials = Math.ceil(mcmcTrials / learnBlocks);
-var testTrials = TEST ? 3 : 11;  // number of test trials per Player
-var stim_size = 150;             // height/width of the avatars in px
-var TRIAL_DURATION = null;
-var POST_TRIAL_GAP = 250;
-var TRIALS = 0;                  // this will be computed dynamically
+var STAKES = 10.00;
+var STAKES_TXT = "ten dollars";
+var N_LEARN = TEST ? 1 : 25; // number of learning trials
+var N_TEST = TEST ? 3 : 11;  // number of test trials
+var N_MCMC = TEST ? 2 : 50;  // number of trials per chain (i.e., number of MCMC iterations)
+var N_MCMC_CHAINS = TEST ? 1 : 4;   // number of MCMC chains
+var BLOCKS = TEST ? 1 : 5;  // number of interleaved learning/MCMC blocks
+var N_UG_PER_BLOCK = Math.ceil((N_LEARN + N_TEST) / BLOCKS);
+var N_MCMC_PER_BLOCK = Math.ceil(N_MCMC / BLOCKS);
+var TRIAL_DURATION = null;       // time limit
+var POST_TRIAL_GAP = 250;        // inter-trial interval
+var TRIALS = 0;                  // this will be computed dynamically to set the progress bar
 
 /* Variables for allowing keypresses of buttons */
 var LEFT_KEY = "ArrowLeft";
 var RIGHT_KEY = "ArrowRight";
 var LR_BUTTONS = ['<button class="jspsych-btn" id="left">%choice%</button>',
-	          '<button class="jspsych-btn" id="right">%choice%</button>'];
+	                '<button class="jspsych-btn" id="right">%choice%</button>'];
 var ALLOW_KEYPRESS = function (trial) {
   setTimeout(function () {
     document.onkeydown = function (e) {
@@ -56,237 +54,14 @@ var ALLOW_KEYPRESS = function (trial) {
 }
 var DISABLE_KEYPRESS = function () { document.onkeydown = function (e) {} };
 
-/* Set condition */
-var id = jsPsych.randomization.randomID();
-var condition = "accept";
-//if (Math.random() > 0.5) {
-//condition = "propose";
-//}
-
-/* Get IBRC survey code */
-var urlParams = new URLSearchParams(window.location.search);
-var surveyCode = urlParams.get('survey_code');
-
-console.log('ID: ' + id);
-console.log('Condition: ' + condition);
-console.log('survey_code: ' + surveyCode);
-jsPsych.data.addProperties({
-  id: id,
-  condition: condition,
-  surveycode: surveyCode
-});
-
-
-/* Define Players and draw offers for each trial */
-var concentration = 10;
-var colors = ["Red", "Yellow", "Blue"];
-var images = colors.map(x => "https://dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/img/" + x.toLowerCase() + "_player.png");
-var img_ind = jsPsych.randomization.shuffle([...images.keys()]);
-var players = [{player: colors[img_ind[0]], avatar: images[img_ind[0]], trait: 'unfair-bad', rate: 0.2},
-               {player: colors[img_ind[1]], avatar: images[img_ind[1]], trait: 'fair', rate: 0.5},
-               {player: colors[img_ind[2]], avatar: images[img_ind[2]], trait: 'unfair-good', rate: 0.8}].map(function(x) {
-                 x.alpha = x.rate * concentration;
-                 x.beta = (1.0 - x.rate) * concentration;
-                 return x;
-               });
-
-if (condition == 'propose') {
-  // swap alpha and beta
-  players = players.map(function (p) {
-    let a = p.alpha;
-    p.alpha = p.beta;
-    p.beta = a;
-      return p;
-  });
-}
-
-
-// create the jspsych parameters for the learning stage
-function learnParams(n) {
-  return players.map(function (p) {
-    return Array(n).fill().map(function () {
-      let o = { ...p };
-      o.offer = (jStat.beta.sample(p.alpha, p.beta) * stakes).toFixed(2);
-      return o;
-    });
-  }).flat();
-}
-
-/* A convenience function to display the Player avatar */
-function avatar() {
-  return "<img src='" + jsPsych.timelineVariable('avatar', true) + "' height='" + stim_size + "'>";
-}
-
-/* A convenience function for creating check questions */
-function check_q(name, text, choices, correctAns, loopUntilCorrect=true, required=true) {
-  let shuffledChoices = jsPsych.randomization.shuffle(choices);
-  let inputHTML = "<div align='left'>";
-  shuffledChoices.forEach(function (c) {
-    inputHTML = inputHTML +
-    '<input style="float: left; display: block; margin-top: 8px;" type="radio" id="' + c +
-    '" name="' + name + '" value="' + c + '"><label for="' + c +
-    '" style="font-size: 12px; display: block; margin-left: 35px;">' +
-    c + '</label>'
-  });
-  inputHTML = inputHTML + '</div><br>';
-
-  return {
-    timeline: [{
-      type: 'survey-html-form',
-      html: "<p>" + text + "</p>" + inputHTML
-    }],
-    on_finish: function (data) {
-      data.response = JSON.parse(data.responses)[name];
-      data.measure = name;
-      data.choices = shuffledChoices;
-      data.button_pressed = shuffledChoices.indexOf(data.response);
-      delete data.responses;
-    },
-
-    loop_function: function (data) {
-      let response = data.values()[0].response;
-      let responded = response != undefined;
-      let correct = response == choices[correctAns];
-
-      if (required && !responded) {
-        alert('Please respond to the question.');
-	      return true;
-      }
-
-      if (responded && loopUntilCorrect && !correct) {
-	      alert('Your response is incorrect. Please try again.');
-        return true;
-      }
-      return false;
-    }
-  };
-}
-
-function updateProgress() {
-  jsPsych.setProgressBar(jsPsych.progress().current_trial_global / TRIALS);
-}
-
-function sampleOffer(mu, sigma=stakes/10, min=0, max=stakes) {
-  if (typeof mu == "string")
-    mu = parseFloat(mu.substr(1));
-  return Math.min(Math.max(jStat.normal.sample(mu, sigma), min), max);
-}
-</script>
-
-<script src="exp-accept.js"></script>
-<script src="exp-propose.js"></script>
-
-<script>
-var timeline = [];
-
-/* Get informed consent */
-var consent = {
-  type:'external-html',
-  url: "consent.html",
-  cont_btn: "start",
-  check_fn: function (elem) {
-    if (document.getElementById('consent_checkbox').checked) {
-      // If we're on mTurk, make sure the HIT has been accepted
-      let turkData = jsPsych.turk.turkInfo();
-      if (!turkData.outsideTurk && turkData.previewMode) {
-        alert("Please accept the HIT to continue.");
-        return false;
-      }
-      return true;
-    }
-
-    alert("If you wish to participate, you must check the box next to the statement 'I agree to participate in this study.'");
-    return false;
-  }
-};
-if (!TEST) {
-  timeline.push(consent);
-  TRIALS = TRIALS + 1;
-}
-
-
-/* load the correct timeline */
-if (condition == "accept") {
-  timeline.push(...accept_timeline);
-  TRIALS = TRIALS + ACCEPT_TRIALS;
-} else {
-  timeline.push(...propose_timeline);
-  TRIALS = TRIALS + PROPOSE_TRIALS;
-}
-
-/* Display post-questionnaire */
-var sex_q = check_q('sex', '<p>What is your sex?</p>',
-                    ['Male', 'Female', 'Other'], undefined, false);
-var age_q = {
-  timeline: [{type: 'survey-text',
-              questions: [{name: "age", prompt: "What is your age?", required: true}],
-              on_finish: function (data) {
-                data.measure = "age";
-                data.response = JSON.parse(data.responses).age;
-                delete data.responses;
-              }}],
-  loop_function: function (data) {
-    let loop = isNaN(parseInt(data.values()[0].response));
-    if (loop) alert("Please enter in your age as a number.");
-    return loop;
-  }
-};
-var id_q = {
-  type: 'survey-text',
-  questions: [{name: "mTurkID", prompt: "If you are completing this experiment through Amazon Mechanical Turk, what is your mTurk worker ID?", required: true}],
-  on_finish: function (data) {
-    data.measure = "mTurkID",
-    data.response = JSON.parse(data.responses).mTurkID;
-    delete data.responses;
-  }
-};
-var debrief_q = {
-  type: 'survey-text',
-  questions: [{name: "debrief", prompt: "The three players you were playing this game with were in fact just computer programs that accept and reject offers at particular rates. " +
-  "Did you expect this? How human-like did you think the players were? How fair did you think the players were? Did you feel yourself treating the players differently?", required: true, rows: 5}],
-  on_finish: function (data) {
-    data.measure = "debrief";
-    data.response = JSON.parse(data.responses).debrief;
-    delete data.responses;
-  }
-};
-var comments_q = {
-  type: 'survey-text',
-  questions: [{name: "comments", prompt: "Do you have anything else to add (comments, questions, etc)?", required: true, rows: 5}],
-  on_finish: function (data) {
-    data.measure = "comments";
-    data.response = JSON.parse(data.responses).comments;
-    delete data.responses;
-  }
-};
-var attn_check = check_q('attnCheck',
-  "<p align='left'>Please be honest when answering the following question. " +
-  "<b>Your answer will not affect your payment or eligibility for future studies.</b></p>" +
-  "<p align='left'>The study you have just participated in is a psychological study aimed at understanding human cognition and behavior. " +
-  "Psychological research depends on participants like you. " +
-  "Your responses to surveys like this one are an incredibly valuable source of data for researchers. " +
-  "It is therefore crucial for research that participants pay attention, avoid distractions, " +
-  "and take all study tasks seriously (even when they might seem silly).</p>" +
-  "<p align='left'><b>Do you feel that you paid attention, avoided distractions, and took this survey seriously?</b></p>",
-  ["No, I was distracted.",
-  "No, I had trouble paying attention",
-  "No, I did not take the study seriously",
-  "No, something else affected my participation negatively.",
-  "Yes."], 4, false);
-timeline.push(age_q, sex_q, attn_check, debrief_q, comments_q);
-TRIALS = TRIALS + 5;
-
-
-/* start the experiment */
-jsPsych.init({
-  timeline: timeline,
+// Set up jsPsych
+var jsPsych = initJsPsych({
   experiment_width: 600,
-  preload_images: images,
   show_progress_bar: true,
   on_trial_start: updateProgress,
   on_finish: async function (data) {
     // Calculate bonus
-    let b = jsPsych.randomization.sampleWithoutReplacement(data.filter({stage: 1, trait: "fair"}).values(), 1)[0].earned;
+    let b = jsPsych.randomization.sampleWithoutReplacement(data.filter({stage: 1}).values(), 1)[0].earned;
     data.addToAll({bonus: b});
 
     // Display completion screen
@@ -315,9 +90,138 @@ jsPsych.init({
 									   setTimeout(function() {
 							         window.location.replace("https://duke-br.sona-systems.com/webstudy_credit.aspx?experiment_id=341&credit_token=6a47a63cca3f4e2da59aa314bd198526&survey_code="+surveyCode);
 										 }, 3000);
-                 }).promise();
-  },
-  preload_images: images,
-  show_progress_bar: true
+                 }).promise().catch(function () {
+
+                 });
+  }
 });
+
+/* Get IBRC survey code */
+var id = jsPsych.randomization.randomID();
+var surveyCode = jsPsych.data.getURLVariable('survey_code');
+jsPsych.data.addProperties({
+  id: id,
+  surveycode: surveyCode
+});
+
+/* Define players and draw offers for each trial */
+var players = [{condition: 'unfair-bad',  rate: .2, concentration: 10},
+               {condition: 'fair',        rate: .5, concentration: 10},
+               {condition: 'unfair-good', rate: .8, concentration: 10}].map(function(x) {
+                 x.alpha = x.rate * x.concentration;
+                 x.beta = (1.0 - x.rate) * x.concentration;
+                 return x;
+               });
+var player = players[Math.floor(Math.random() * players.length)];  // randomly select player traits
+jsPsych.data.addProperties(player);
+
+console.log('ID: ' + id);
+console.log('survey_code: ' + surveyCode);
+console.log('condition: ' + player.condition);
+
+
+// update the progress bar
+function updateProgress() {
+  jsPsych.setProgressBar(jsPsych.getProgress().current_trial_global / TRIALS);
+}
+</script>
+
+<script src="exp-accept.js"></script>
+
+<script>
+var timeline = [];
+
+/* Get informed consent */
+var consent = {
+  type: jsPsychExternalHtml,
+  url: "consent.html",
+  cont_btn: "start",
+  check_fn: function (elem) {
+    if (document.getElementById('consent_checkbox').checked) {
+      // If we're on mTurk, make sure the HIT has been accepted
+      let turkData = jsPsych.turk.turkInfo();
+      if (!turkData.outsideTurk && turkData.previewMode) {
+        alert("Please accept the HIT to continue.");
+        return false;
+      }
+      return true;
+    }
+
+    alert("If you wish to participate, you must check the box next to the statement 'I consent to participate in this study.'");
+    return false;
+  }
+};
+if (!TEST) {
+  timeline.push(consent);
+  TRIALS = TRIALS + 1;
+}
+
+/* load the timeline */
+timeline.push(...accept_timeline);
+TRIALS = TRIALS + ACCEPT_TRIALS;
+
+/* Display post-questionnaire */
+var sex_q = check_q('sex', '<p>What is your sex?</p>',
+                    ['Male', 'Female', 'Other'], undefined, false);
+var age_q = {
+  timeline: [{type: jsPsychSurveyText,
+              questions: [{name: "age", prompt: "What is your age?", required: true}],
+              on_finish: function (data) {
+                data.measure = "age";
+                data.response = JSON.parse(data.responses).age;
+                delete data.responses;
+              }}],
+  loop_function: function (data) {
+    let loop = isNaN(parseInt(data.values()[0].response));
+    if (loop) alert("Please enter in your age as a number.");
+    return loop;
+  }
+};
+var id_q = {
+  type: jsPsychSurveyText,
+  questions: [{name: "mTurkID", prompt: "If you are completing this experiment through Amazon Mechanical Turk, what is your mTurk worker ID?", required: true}],
+  on_finish: function (data) {
+    data.measure = "mTurkID",
+    data.response = JSON.parse(data.responses).mTurkID;
+    delete data.responses;
+  }
+};
+var debrief_q = {
+  type: jsPsychSurveyText,
+  questions: [{name: "debrief", prompt: "The three players you were playing this game with were in fact just computer programs that accept and reject offers at particular rates. " +
+  "Did you expect this? How human-like did you think the players were? How fair did you think the players were? Did you feel yourself treating the players differently?", required: true, rows: 5}],
+  on_finish: function (data) {
+    data.measure = "debrief";
+    data.response = JSON.parse(data.responses).debrief;
+    delete data.responses;
+  }
+};
+var comments_q = {
+  type: jsPsychSurveyText,
+  questions: [{name: "comments", prompt: "Do you have anything else to add (comments, questions, etc)?", required: true, rows: 5}],
+  on_finish: function (data) {
+    data.measure = "comments";
+    data.response = JSON.parse(data.responses).comments;
+    delete data.responses;
+  }
+};
+var attn_check = check_q('attnCheck',
+  "<p align='left'>Please be honest when answering the following question. " +
+  "<b>Your answer will not affect your payment or eligibility for future studies.</b></p>" +
+  "<p align='left'>The study you have just participated in is a psychological study aimed at understanding human cognition and behavior. " +
+  "Psychological research depends on participants like you. " +
+  "Your responses to surveys like this one are an incredibly valuable source of data for researchers. " +
+  "It is therefore crucial for research that participants pay attention, avoid distractions, " +
+  "and take all study tasks seriously (even when they might seem silly).</p>" +
+  "<p align='left'><b>Do you feel that you paid attention, avoided distractions, and took this survey seriously?</b></p>",
+  ["No, I was distracted.",
+  "No, I had trouble paying attention",
+  "No, I did not take the study seriously",
+  "No, something else affected my participation negatively.",
+  "Yes."], 4, false);
+timeline.push(age_q, sex_q, attn_check, debrief_q, comments_q);
+TRIALS = TRIALS + 5;
+
+/* start the experiment */
+jsPsych.run(timeline);
 </script>
