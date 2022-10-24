@@ -9,10 +9,20 @@
       <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.1"></script>
       <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
       <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.1"></script>
+      <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
       <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.1"></script>
       <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.1"></script>
       <link href="https://unpkg.com/jspsych@7.3.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <style>
+        .jspsych-slider.hidden::-webkit-slider-thumb {
+          visibility: hidden;
+        }
+
+        .jspsych-slider.hidden::-moz-range-thumb {
+          visibility: hidden;
+        }
+      </style>
     </head>
     <body></body>
 </html>

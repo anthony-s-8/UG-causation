@@ -92,6 +92,15 @@ var instructions_accept = {
   show_clickable_nav: true
 };
 
+function instructions_UG_accept(block) {
+  return {
+    type: jsPsychInstructions,
+    pages: ["<p>Great work, you've completed block " + block + " out of " + BLOCKS + "!</p>" +
+            "<p>Now, we will let you play with your partner some more.</p>"],
+    show_clickable_nav: true
+  }
+}
+
 var instructions_mcmc_accept = {
   type: jsPsychInstructions,
   pages: ["<p>Great work!</p><br><p>Now, we want to learn what you think of your partner.</p>",
@@ -102,6 +111,20 @@ var instructions_mcmc_accept = {
           "You do not need to spend too much time thinking about each choice.</p>"],
   show_clickable_nav: true
 };
+
+var waiting_instructions = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: "Waiting for your partner to finish the instructions...",
+  choices: 'NO_KEYS',
+  trial_duration: function() { return jStat.gamma.sample(20, 500); }  // mean of 10s, sd of 2.36s
+}
+
+var waiting_offer = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: "Waiting for your partner to make an offer...",
+  choices: 'NO_KEYS',
+  trial_duration: function() { if (TEST) return 0; else return jStat.gamma.sample(10, 500); } // mean of 5s, sd of 1.58s
+}
 
 if (!TEST) {
   accept_timeline.push(instructions_accept);
@@ -163,6 +186,12 @@ var causeTrial = {
   },
   labels: ["not at all", "totally"],
   trial_duration: TRIAL_DURATION,
+  on_load: function () {
+    document.getElementById('jspsych-html-slider-response-response').classList.add('hidden');
+    document.getElementById('jspsych-html-slider-response-response').addEventListener('click', function (e) {
+      e.target.classList.remove('hidden');
+    });
+  },
   on_finish: function (data) {
     d = jsPsych.data.getLastTrialData().values()[0];
     data.offer = jsPsych.timelineVariable('offer', true);
@@ -193,6 +222,12 @@ var confidenceTrial = {
   labels: ["not at all", "totally"],
   trial_duration: TRIAL_DURATION,
   post_trial_gap: POST_TRIAL_GAP,
+  on_load: function () {
+    document.getElementById('jspsych-html-slider-response-response').classList.add('hidden');
+    document.getElementById('jspsych-html-slider-response-response').addEventListener('click', function (e) {
+      e.target.classList.remove('hidden');
+    });
+  },
   on_finish: function (data) {
     data.offer = jsPsych.timelineVariable('offer', true);
     data.prob = offerProb(data.offer);
@@ -220,7 +255,7 @@ function accept_block(params, block_number) {
     timeline_variables: params,
     randomize_order: true,
     data: {block_number: block_number},
-    timeline: [UGTrial,
+    timeline: [waiting_offer, UGTrial,
 							 {
 							 	 timeline: [feedbackTrial],
 							 	 conditional_function: function() {
@@ -305,13 +340,24 @@ var UGParams = jsPsych.randomization.shuffle(Array(N_LEARN).fill().map(function 
 
 // split the trials into blocks, and add them to the timeline
 for (block=0; block<BLOCKS; block++) {
-	// add learning trials for this block
-	let UGTrials = accept_block(UGParams.slice(block*N_UG_PER_BLOCK, (block+1)*N_UG_PER_BLOCK), block+1);
+  // add learning trials for this block
+  if (block > 0) {
+    accept_timeline.push(instructions_UG_accept(block));  // intermediate instructions
+    ACCEPT_TRIALS = ACCEPT_TRIALS + 1;
+  }
+
+  if (!TEST) {
+    accept_timeline.push(waiting_instructions);
+    ACCEPT_TRIALS = ACCEPT_TRIALS + 1;
+  }
+
+  let UGTrials = accept_block(UGParams.slice(block*N_UG_PER_BLOCK, (block+1)*N_UG_PER_BLOCK), block+1);
 	accept_timeline.push(UGTrials);
 	ACCEPT_TRIALS = ACCEPT_TRIALS + UGTrials.timeline_variables.length * UGTrials.timeline.length;
 
-	// add mcmc trials for this block
+  // add mcmc trials for this block
 	let mcmc_trials = mcmc_block(N_MCMC_PER_BLOCK);
+  accept_timeline.push(instructions_mcmc_accept);   // intermediate instructions
 	accept_timeline.push(mcmc_trials);
-	ACCEPT_TRIALS = ACCEPT_TRIALS + mcmc_trials.repetitions * mcmc_trials.timeline_variables.length;
+	ACCEPT_TRIALS = ACCEPT_TRIALS + 1 + mcmc_trials.repetitions * mcmc_trials.timeline_variables.length;
 }
