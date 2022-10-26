@@ -1,18 +1,18 @@
 <?php
 
-# Structure on the server (bradylab.ucsd.edu):
+# Structure on the server (dibs-web01.vm.duke.edu):
 #
 #  This file:
-#    bradylab.ucsd.edu/turk/save.php
+#    dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/save.php
 #  Data gets saved in:
-#    bradylab.ucsd.edu/turk/data/{experimenter}/{experimentName}
+#    dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/data/{experimentName}
 #  Each subject gets saved using their id:
-#	 harvardvisionlab.com/turk/data/{experimenter}/{experimentName}/{id}.{extension}
+#    dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/data/{experimentName}/{id}.{extension}
 #
 # Warning:
 # Note that this means that anybody can load this file directly and
 # create files on your server. E.g., if somebody goes to the URL
-# bradylab.ucsd.edu/turk/save.py?id=hello&experimentName=tim&curData=you+da+bomb,
+# dibs-web01.vm.duke.edu/debrigard/UG-causation/exp/save.php?id=hello&experimentName=tim&curData=you+da+bomb,
 # that will create a file on the server in the directory "data". So it isn't the
 # safest thing in the world.
 
