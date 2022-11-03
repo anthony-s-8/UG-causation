@@ -166,14 +166,12 @@ function offerProb(offer, max=STAKES) {
         data.stage = jsPsych.timelineVariable('stage', true);
         data.offer = jsPsych.timelineVariable('offer', true);
         data.prob = offerProb(data.offer);
-        data.accept = data.response == 1;
-        if (data.accept) {
-          data.response = "accept";
+
+        // calculate reward
+        if (data.response == 1)
           data.earned = jsPsych.timelineVariable('offer', true);
-        } else {
-          data.response = "reject";
+        else
           data.earned = "0.00";
-        }
       }
     };
 
@@ -261,7 +259,7 @@ function offerProb(offer, max=STAKES) {
       return {
         timeline_variables: params,
         randomize_order: true,
-        data: {block_number: block_number},
+        data: {block: block_number},
         timeline: [waiting_offer, UGTrial,
           {
             timeline: [feedbackTrial],
@@ -293,7 +291,7 @@ function offerProb(offer, max=STAKES) {
           timeline_variables: params,
           repetitions: n_trials,
           randomize_order: true,
-          data: {stage: 'mcmc', block_number: block_number},
+          data: {stage: 'mcmc', measure: 'mcmc', block: block_number},
           timeline: [{
             type: jsPsychHtmlButtonResponse,
             stimulus: "<p>Which offer is your partner more likely to make?</p>",
@@ -323,8 +321,8 @@ function offerProb(offer, max=STAKES) {
             on_start: ALLOW_KEYPRESS,
             on_finish: function(data) {
               DISABLE_KEYPRESS();
-              data.choices = jsPsych.getCurrentTrial().choices;
-              data.response = data.choices[data.response];
+              data.choices = jsPsych.getCurrentTrial().choices.map(function (x) {return parseFloat(x.substr(1))});
+              data.response = parseFloat(data.choices[data.response].substr(1));
               data.chain = jsPsych.timelineVariable('chain', true);
             }
           }]
@@ -363,7 +361,7 @@ function offerProb(offer, max=STAKES) {
         ACCEPT_TRIALS = ACCEPT_TRIALS + UGTrials.timeline_variables.length * UGTrials.timeline.length;
 
         // add mcmc trials for this block
-        let mcmc_trials = mcmc_block(N_MCMC_PER_BLOCK);
+        let mcmc_trials = mcmc_block(N_MCMC_PER_BLOCK, block+1);
         accept_timeline.push(instructions_mcmc_accept);   // intermediate instructions
         accept_timeline.push(mcmc_trials);
         ACCEPT_TRIALS = ACCEPT_TRIALS + 1 + mcmc_trials.repetitions * mcmc_trials.timeline_variables.length;

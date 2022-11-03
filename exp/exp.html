@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/@jspsych/plugin-external-html@1.1.1"></script>
   <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.1"></script>
   <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.1"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.2"></script>
   <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
   <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.1"></script>
   <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.1"></script>
@@ -44,7 +44,7 @@ var BLOCKS = TEST ? 1 : 2;  // number of interleaved learning/MCMC blocks
 var N_UG_PER_BLOCK = Math.ceil((N_LEARN + N_TEST) / BLOCKS);
 var N_MCMC_PER_BLOCK = Math.ceil(N_MCMC / BLOCKS);
 var TRIAL_DURATION = null;       // time limit
-var POST_TRIAL_GAP = 0;          // inter-trial interval
+var POST_TRIAL_GAP = 250;        // inter-trial interval
 var TRIALS = 0;                  // this will be computed dynamically to set the progress bar
 
 /* Variables for allowing keypresses of buttons */
@@ -189,16 +189,16 @@ var age_q = {
     type: jsPsychSurveyText,
     questions: [{name: "debrief_game", prompt: "The game you just played is a version of the Ultimatum Game. In this game, it is thought to be most economically rational to accept any offer made, since that is the only way to win money in the game. Have you ever heard of or played this game before? Were you aware of this strategy?", required: true, rows: 5}],
     on_finish: function (data) {
-      data.measure = "debrief";
+      data.measure = "debrief_game";
       data.response = data.response.debrief;
     }
   };
   var debrief_q2 = {
     type: jsPsychSurveyText,
-    questions: [{name: "debrief", prompt: "<p>The player you were playing this game with was in fact just a computer program that proposed different offers at particular rates. The other \"participant\" is in fact a Duke researcher hired to help make it appear as if you were playing the game together.</p>" +
+    questions: [{name: "debrief_partner", prompt: "<p>The player you were playing this game with was in fact just a computer program that proposed different offers at particular rates. The other \"participant\" is in fact a Duke researcher hired to help make it appear as if you were playing the game together.</p>" +
     "<p>Did you expect this? How human-like did you think the player was? How fair did you think the player was?</p>", required: true, rows: 5}],
     on_finish: function (data) {
-      data.measure = "debrief";
+      data.measure = "debrief_partner";
       data.response = data.response.debrief;
     }
   };
