@@ -45,7 +45,7 @@ function check_q(name, text, choices, correctAns, loopUntilCorrect=true, require
 }
 
 // sample an offer using a truncated normal distribution around mu
-function sampleOffer(mu, sigma=STAKES/10, min=0, max=STAKES) {
+function sampleOffer(mu, sigma=STAKES/20, min=0, max=STAKES) {
   if (typeof mu == "string")
   mu = parseFloat(mu.substr(1));
   return Math.min(Math.max(jStat.normal.sample(mu, sigma), min), max);
@@ -247,7 +247,7 @@ function offerProb(offer, max=STAKES) {
       post_trial_gap: POST_TRIAL_GAP,
       pages: function () {
         d = jsPsych.data.getLastTrialData().values()[0];
-        color = (d.response == 'accept') ? 'green' : 'red';
+        color = (d.response == 1) ? 'green' : 'red';
         return ["<p>You have " + d.response + "ed your partner's offer of $" + d.offer +
         " out of $" + STAKES.toFixed(2) + ".</p>" +
         "<p style='color: " + color + ";'>As a result, you have earned $" + d.earned + ".</p><br>"];

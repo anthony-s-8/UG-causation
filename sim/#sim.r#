@@ -8,9 +8,9 @@ library(lmerTest)
 library(ggeffects)
 
 ## players' offer distributions
-N <- 10
+N <- 8
 offers <- data.frame(player=c('A', 'B', 'C'),
-                        rate=c(.3, .5, .7)) %>%
+                        rate=c(.35, .5, .65)) %>%
     mutate(offer.s1=rate*N,
            offer.s2=(1-rate)*N,
            accept.s1=(1-rate)*N,
@@ -22,6 +22,7 @@ offers %>%
     mutate(poffer=dbeta(offer, offer.s1, offer.s2)) %>%
     ggplot(aes(x=offer, y=poffer, color=player)) +
     geom_line() + theme_classic() + ylab('P(offer=X | player)')
+
 ggsave('plots/offers.png')
 
 ## display hypothetical causal judgments
