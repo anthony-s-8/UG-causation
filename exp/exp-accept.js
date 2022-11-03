@@ -322,7 +322,7 @@ function offerProb(offer, max=STAKES) {
             on_finish: function(data) {
               DISABLE_KEYPRESS();
               data.choices = jsPsych.getCurrentTrial().choices.map(function (x) {return parseFloat(x.substr(1))});
-              data.response = parseFloat(data.choices[data.response].substr(1));
+              data.response = data.choices[data.response];
               data.chain = jsPsych.timelineVariable('chain', true);
             }
           }]
