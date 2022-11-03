@@ -304,7 +304,7 @@ function offerProb(offer, max=STAKES) {
 
               // If possible, use the last response as the Markov state
               if (lastTrial != undefined) {
-                c[0] = lastTrial.response;
+                c[0] = "$" + lastTrial.response.toFixed(2);
               }
 
               // Sample the alternative choice using a proposal distribution
