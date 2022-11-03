@@ -182,8 +182,8 @@ function offerProb(offer, max=STAKES) {
       min: 0, max: 1, step: 'any', require_movement: true,
       stimulus: function () {
         d = jsPsych.data.getLastTrialData().values()[0];
-        color = (d.response == 'accept') ? 'green' : 'red';
-        return "<p>You have " + d.response + "ed your partner's offer of $" +
+        color = (d.response == 1) ? 'green' : 'red';
+        return "<p>You have " + (d.response == 1 ? 'accept' : 'reject') + "ed your partner's offer of $" +
         d.offer + " out of $" + STAKES.toFixed(2) + ".</p>" +
         "<p style='color: " + color + ";'>As a result, you have earned $" + d.earned + ".</p><br>" +
         "<p><b>To what extent did you earn $" + d.earned +
@@ -211,8 +211,8 @@ function offerProb(offer, max=STAKES) {
       stimulus: function () {
         d = jsPsych.data.get().last(2).first(1).values()[0];
         d2 = jsPsych.data.getLastTrialData().values()[0];
-        color = (d.response == 'accept') ? 'green' : 'red';
-        return "<p>You have " + d.response +
+        color = (d.response == 1) ? 'green' : 'red';
+        return "<p>You have " + (d.response == 1 ? 'accept' : 'reject') +
         "ed your partner's offer of $" + d.offer +
         " out of $" + STAKES.toFixed(2) + ".</p>" +
         "<p style='color: " + color + ";'>As a result, you have earned $" + d.earned + ".</p><br>" +
@@ -248,7 +248,7 @@ function offerProb(offer, max=STAKES) {
       pages: function () {
         d = jsPsych.data.getLastTrialData().values()[0];
         color = (d.response == 1) ? 'green' : 'red';
-        return ["<p>You have " + d.response + "ed your partner's offer of $" + d.offer +
+        return ["<p>You have " + (d.response == 1 ? 'accept' : 'reject') + "ed your partner's offer of $" + d.offer +
         " out of $" + STAKES.toFixed(2) + ".</p>" +
         "<p style='color: " + color + ";'>As a result, you have earned $" + d.earned + ".</p><br>"];
       }
