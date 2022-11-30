@@ -127,7 +127,7 @@ function offerProb(offer, max=STAKES) {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: "Waiting for your partner to make an offer...",
       choices: 'NO_KEYS',
-      trial_duration: function() { if (TEST) return 0; else return jStat.gamma.sample(10, 500); }, // mean of 5s, sd of 1.58s
+      trial_duration: function() { if (TEST) return 0; else return jStat.gamma.sample(10, 250); }, // mean of 2.5s, sd of .79s
       data: { stage: 'iti' }
     }
 
