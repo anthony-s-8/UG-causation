@@ -94,12 +94,6 @@ var jsPsych = initJsPsych({
     dataToServer,
     function(data) {
       document.getElementById('done').style.visibility = "visible";
-
-      // Re-direct back to SONA if survey_code is present
-      if (surveyCode != null)
-      setTimeout(function() {
-        window.location.replace("https://duke-br.sona-systems.com/webstudy_credit.aspx?experiment_id=341&credit_token=6a47a63cca3f4e2da59aa314bd198526&survey_code="+surveyCode);
-      }, 3000);
     }).promise().catch(function () {
 
     });
@@ -115,9 +109,9 @@ jsPsych.data.addProperties({
 });
 
 /* Define players and draw offers for each trial */
-var players = [{condition: 'unfair-bad',  rate: .2, concentration: 10},
-{condition: 'fair',        rate: .5, concentration: 10},
-{condition: 'unfair-good', rate: .8, concentration: 10}].map(function(x) {
+var players = [{condition: 'unfair-bad',  rate: .35, concentration: 5},
+{condition: 'fair',        rate: .5, concentration: 5},
+{condition: 'unfair-good', rate: .65, concentration: 5}].map(function(x) {
   x.alpha = x.rate * x.concentration;
   x.beta = (1.0 - x.rate) * x.concentration;
   return x;

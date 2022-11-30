@@ -3,20 +3,28 @@
 ## Simulate data for UG with causal judgments
 ##
 library(tidyverse)
+library(distributional)
+library(ggdist)
+
 library(lme4)
 library(lmerTest)
 library(ggeffects)
 
 ## players' offer distributions
-N <- 10
+N <- 5
 offers <- data.frame(player=c('A', 'B', 'C'),
-                        rate=c(.3, .5, .7)) %>%
+                        rate=c(.35, .5, .65)) %>%
     mutate(offer.s1=rate*N,
            offer.s2=(1-rate)*N,
            accept.s1=(1-rate)*N,
            accept.s2=rate*N)
 
 ## Display offer probabilities
+ggplot(offers) +
+    stat_halfeye(aes(xdist=dist_beta(offer.s1, offer.s2), fill=player), alpha=.33) +
+    ##facet_wrap(~ player) +
+    theme_tidybayes()
+
 offers %>%
     expand_grid(offer=seq(from=0, to=1, by=0.01)) %>%
     mutate(poffer=dbeta(offer, offer.s1, offer.s2)) %>%
