@@ -184,7 +184,7 @@ var age_q = {
     questions: [{name: "debrief_game", prompt: "The game you just played is a version of the Ultimatum Game. In this game, it is thought to be most economically rational to accept any offer made, since that is the only way to win money in the game. Have you ever heard of or played this game before? Were you aware of this strategy?", required: true, rows: 5}],
     on_finish: function (data) {
       data.measure = "debrief_game";
-      data.response = data.response.debrief;
+      data.response = data.response.debrief_game;
     }
   };
   var debrief_q2 = {
@@ -193,7 +193,7 @@ var age_q = {
     "<p>Did you expect this? How human-like did you think the player was? How fair did you think the player was?</p>", required: true, rows: 5}],
     on_finish: function (data) {
       data.measure = "debrief_partner";
-      data.response = data.response.debrief;
+      data.response = data.response.debrief_partner;
     }
   };
   var comments_q = {
